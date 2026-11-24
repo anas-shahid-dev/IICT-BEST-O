@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CinePass — Your Movie. Your Seat. Your Experience.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#090909',
+            charcoal: '#171717',
+            burgundy: '#500F24',
+            gold: '#D6B46A',
+            ivory: '#F5F0E8',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Cormorant Garamond', 'Georgia', 'serif'],
+          },
+          boxShadow: {
+            gold: '0 0 35px -5px rgba(214, 180, 106, 0.25)',
+            burgundy: '0 20px 50px -15px rgba(80, 15, 36, 0.55)',
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    :root {
+      --bg-primary: #090909;
+      --bg-secondary: #171717;
+      --accent-burgundy: #500F24;
+      --accent-gold: #D6B46A;
+      --text-ivory: #F5F0E8;
+    }
+
+    body {
+      background-color: var(--bg-primary);
+      color: var(--text-ivory);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      transition: background-color 0.45s ease, color 0.45s ease;
+    }
+
+    body.theme-velvet {
+      --bg-primary: #14060b;
+      --bg-secondary: #220b13;
+      background-color: #14060b;
+    }
+
+    .glass-panel {
+      background: rgba(23, 23, 23, 0.72);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(214, 180, 106, 0.16);
+    }
+
+    body.theme-velvet .glass-panel {
+      background: rgba(34, 11, 19, 0.78);
+    }
+
+    .glass-nav {
+      background: rgba(9, 9, 9, 0.82);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(214, 180, 106, 0.14);
+    }
+
+    .gold-gradient-text {
+      background: linear-gradient(135deg, #F5F0E8 0%, #D6B46A 50%, #b58e3e 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .cinematic-hero-bg {
+      background:
+        radial-gradient(circle at 80% 20%, rgba(214, 180, 106, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 15% 80%, rgba(80, 15, 36, 0.55) 0%, transparent 55%),
+        linear-gradient(180deg, rgba(9, 9, 9, 0.4) 0%, #090909 100%);
+    }
+
+    @keyframes slowFloat {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-10px) rotate(1deg); }
+    }
+
+    @keyframes shimmerSweep {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(200%); }
+    }
+
+    @keyframes pageFadeIn {
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .animate-float {
+      animation: slowFloat 7s ease-in-out infinite;
+    }
+
+    .page-view {
+      animation: pageFadeIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    .shimmer-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    .shimmer-btn::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent);
+      transform: translateX(-100%);
+    }
+    .shimmer-btn:hover::after {
+      animation: shimmerSweep 0.85s ease forwards;
+    }
+
+    .card-lift {
+      transition: transform 0.38s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.38s ease, box-shadow 0.38s ease;
+    }
+    .card-lift:hover {
+      transform: translateY(-5px);
+      border-color: rgba(214, 180, 106, 0.45);
+      box-shadow: 0 22px 45px -15px rgba(0, 0, 0, 0.85), 0 0 25px -5px rgba(214, 180, 106, 0.2);
+    }
+
+    .reveal-item {
+      opacity: 0;
+      transform: translateY(18px);
+      transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .reveal-item.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #090909; }
+    ::-webkit-scrollbar-thumb { background: #2e2620; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #D6B46A; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .reveal-item { opacity: 1; transform: none; }
+    }
+  </style>
+</head>
+<body class="antialiased selection:bg-gold selection:text-obsidian">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" aria-live="polite" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Global Sticky Navigation -->
+  <header class="glass-nav sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <!-- Brand Logo -->
+        <a href="#profile" onclick="navigateTo('profile'); return false;" class="flex items-center gap-3 group focus:outline-none">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-burgundy via-[#741635] to-obsidian border border-gold/40 flex items-center justify-center shadow-gold group-hover:scale-105 transition-transform">
+            <svg class="w-5 h-5 text-gold" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
+            </svg>
+          </div>
+          <div>
+            <span class="font-serif text-2xl font-bold tracking-wide text-white">Cine<span class="text-gold">Pass</span></span>
+            <span class="hidden sm:block text-[10px] uppercase tracking-[0.24em] text-ivory/50 -mt-1">Premiere Club</span>
+          </div>
+        </a>
+
+        <!-- Desktop Navigation -->
+        <nav aria-label="Primary Navigation" class="hidden lg:flex items-center gap-1 bg-charcoal/80 p-1.5 rounded-full border border-white/10">
+          <button type="button" onclick="handleExternalNav('Home')" class="px-4 py-2 rounded-full text-xs font-medium text-ivory/70 hover:text-white transition">Home</button>
+          <button type="button" onclick="handleExternalNav('Movies')" class="px-4 py-2 rounded-full text-xs font-medium text-ivory/70 hover:text-white transition">Movies</button>
+          <button type="button" data-nav="cinemas" onclick="navigateTo('cinemas')" class="nav-pill px-4 py-2 rounded-full text-xs font-medium transition">Cinemas</button>
+          <button type="button" data-nav="offers" onclick="navigateTo('offers')" class="nav-pill px-4 py-2 rounded-full text-xs font-medium transition">Offers</button>
+          <button type="button" onclick="handleExternalNav('My Tickets')" class="px-4 py-2 rounded-full text-xs font-medium text-ivory/70 hover:text-white transition">My Tickets</button>
+          <button type="button" data-nav="profile" onclick="navigateTo('profile')" class="nav-pill px-4 py-2 rounded-full text-xs font-medium transition">My Profile</button>
+        </nav>
+
+        <!-- Right Quick Status & Mobile Toggle -->
+        <div class="flex items-center gap-3">
+          <div class="hidden sm:flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-burgundy/40 border border-gold/30">
+            <span class="w-2 h-2 rounded-full bg-gold animate-pulse"></span>
+            <span id="nav-tier-badge" class="text-xs font-medium text-gold tracking-wide">Royal Gold</span>
+          </div>
+          <button type="button" id="mobile-menu-btn" aria-label="Open Navigation Menu" aria-expanded="false" onclick="toggleMobileMenu()" class="lg:hidden p-2.5 rounded-xl bg-charcoal border border-gold/25 text-ivory hover:text-gold transition">
+            <svg id="menu-icon-open" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <svg id="menu-icon-close" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Drawer -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-gold/15 bg-obsidian/95 backdrop-blur-xl px-4 pt-3 pb-6 space-y-1.5">
+      <button type="button" onclick="handleExternalNav('Home'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm text-ivory/75 hover:bg-charcoal flex items-center justify-between">
+        <span>Home</span><span class="text-[11px] text-ivory/40">Portal</span>
+      </button>
+      <button type="button" onclick="handleExternalNav('Movies'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm text-ivory/75 hover:bg-charcoal flex items-center justify-between">
+        <span>Movies</span><span class="text-[11px] text-ivory/40">Catalog</span>
+      </button>
+      <button type="button" data-nav-mobile="cinemas" onclick="navigateTo('cinemas'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition flex items-center justify-between">
+        <span>Cinemas / Locations</span><span class="text-xs text-gold">Member 4</span>
+      </button>
+      <button type="button" data-nav-mobile="offers" onclick="navigateTo('offers'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition flex items-center justify-between">
+        <span>Offers &amp; Discounts</span><span class="text-xs text-gold">Member 4</span>
+      </button>
+      <button type="button" onclick="handleExternalNav('My Tickets'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm text-ivory/75 hover:bg-charcoal flex items-center justify-between">
+        <span>My Tickets</span><span class="text-[11px] text-ivory/40">Bookings</span>
+      </button>
+      <button type="button" data-nav-mobile="profile" onclick="navigateTo('profile'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl text-sm font-medium transition flex items-center justify-between">
+        <span>My Profile</span><span class="text-xs text-gold">Member 4</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main id="app-main" class="min-h-screen">
+
+    <!-- =========================================================
+         PAGE 01: USER PROFILE
+    ========================================================== -->
+    <section id="page-profile" class="page-view">
+      <!-- Signed Out Banner (Shown only when user clicks Logout) -->
+      <div id="logged-out-state" class="hidden max-w-2xl mx-auto px-4 py-28 text-center">
+        <div class="glass-panel rounded-3xl p-10 sm:p-14 border border-gold/30 shadow-burgundy">
+          <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-burgundy/60 border border-gold/40 flex items-center justify-center text-gold">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+          </div>
+          <p class="text-xs uppercase tracking-[0.25em] text-gold mb-2">Session Ended</p>
+          <h1 class="font-serif text-3xl sm:text-4xl font-bold text-white mb-4">You Have Signed Out of CinePass</h1>
+          <p class="text-sm text-ivory/70 max-w-md mx-auto mb-8 leading-relaxed">Your personal profile preferences and saved watchlist remain safely stored on this device. Sign back in anytime to access your VIP dashboard.</p>
+          <button type="button" onclick="signBackIn()" class="shimmer-btn px-8 py-3.5 rounded-full bg-gradient-to-r from-gold to-[#b89242] text-obsidian font-semibold text-sm tracking-wide hover:shadow-gold transition">
+            Sign Back In as Zayd Al-Mansoor
+          </button>
+        </div>
+      </div>
+
+      <!-- Active Profile Dashboard -->
+      <div id="profile-dashboard-content">
+        <!-- A. PROFILE HERO SECTION -->
+        <div class="relative overflow-hidden border-b border-gold/15">
+          <div class="absolute inset-0">
+            <img src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=1920&q=80" alt="Luxury cinema auditorium atmosphere" class="w-full h-full object-cover opacity-25 scale-105" />
+            <div class="absolute inset-0 cinematic-hero-bg"></div>
+          </div>
+
+          <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-16 lg:py-20">
+            <div class="glass-panel rounded-3xl p-6 sm:p-10 lg:p-12 border border-gold/25 shadow-burgundy">
+              <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+                <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6 sm:gap-8 text-center sm:text-left">
+                  <!-- Circular Profile Picture -->
+                  <div class="relative group animate-float">
+                    <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-1 bg-gradient-to-tr from-burgundy via-gold to-ivory shadow-gold">
+                      <img id="hero-avatar" src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80" alt="Member Portrait" class="w-full h-full object-cover rounded-full border-2 border-obsidian" />
+                    </div>
+                    <span class="absolute bottom-1 right-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-gold text-obsidian shadow">VIP</span>
+                  </div>
+
+                  <!-- User Identity -->
+                  <div class="space-y-2.5">
+                    <div class="flex flex-wrap items-center justify-center sm:justify-start gap-2.5">
+                      <span id="hero-membership-pill" class="px-3.5 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-burgundy/80 text-gold border border-gold/40">
+                        Royal Gold Member
+                      </span>
+                      <span class="text-xs text-ivory/60 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        Member Since September 2023
+                      </span>
+                    </div>
+                    <h1 id="hero-full-name" class="font-serif text-3xl sm:text-5xl font-bold text-white tracking-tight">Zayd Al-Mansoor</h1>
+                    <p id="hero-email" class="text-sm sm:text-base text-ivory/75 flex items-center justify-center sm:justify-start gap-2">
+                      <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                      <span>zayd.almansoor@cinepass.pk</span>
+                    </p>
+                    <p class="text-xs text-ivory/50 pt-1">CinePass ID: <span class="font-mono text-gold/90">#CP-88492-ISB</span> • Priority Lounge &amp; Zero Convenience Fee Active</p>
+                  </div>
+                </div>
+
+                <!-- Hero Actions -->
+                <div class="flex flex-wrap items-center justify-center lg:justify-end gap-3">
+                  <button type="button" onclick="openEditProfileModal()" class="shimmer-btn px-6 py-3.5 rounded-full bg-gradient-to-r from-gold to-[#c49b4b] text-obsidian font-semibold text-sm flex items-center gap-2 hover:shadow-gold transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                    Edit Profile
+                  </button>
+                  <button type="button" onclick="navigateTo('offers')" class="px-6 py-3.5 rounded-full bg-charcoal/90 hover:bg-burgundy/60 text-ivory border border-gold/30 text-sm font-medium transition">
+                    View Member Rewards
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- MAIN PROFILE BODY -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-14">
+
+          <!-- C. PERSONAL DASHBOARD STATISTICS (Derived dynamically from app state) -->
+          <div class="reveal-item">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-2">
+              <div>
+                <p class="text-xs uppercase tracking-[0.22em] text-gold font-medium">Live Activity Telemetry</p>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">Cinema Concierge Overview</h2>
+              </div>
+              <p class="text-xs text-ivory/55">Calculated directly from your watch history, active reservations &amp; saved list</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              <!-- Stat 1: Movies Watched -->
+              <div class="glass-panel card-lift rounded-2xl p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="p-2.5 rounded-xl bg-burgundy/50 border border-gold/25 text-gold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" /></svg>
+                  </span>
+                  <span class="text-[11px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">Verified History</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-bold text-white font-serif" id="stat-watched">0</div>
+                <p class="text-xs text-ivory/65 mt-1">Movies Watched</p>
+                <p id="stat-watched-sub" class="text-[11px] text-gold/80 mt-3 pt-3 border-t border-white/10">Loading screening log...</p>
+              </div>
+
+              <!-- Stat 2: Upcoming Bookings -->
+              <div class="glass-panel card-lift rounded-2xl p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="p-2.5 rounded-xl bg-burgundy/50 border border-gold/25 text-gold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" /></svg>
+                  </span>
+                  <span class="text-[11px] text-gold bg-gold/10 border border-gold/25 px-2.5 py-0.5 rounded-full">Active Passes</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-bold text-white font-serif" id="stat-upcoming">0</div>
+                <p class="text-xs text-ivory/65 mt-1">Upcoming Bookings</p>
+                <p id="stat-upcoming-sub" class="text-[11px] text-gold/80 mt-3 pt-3 border-t border-white/10">Loading upcoming shows...</p>
+              </div>
+
+              <!-- Stat 3: Favourite Movies -->
+              <div class="glass-panel card-lift rounded-2xl p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="p-2.5 rounded-xl bg-burgundy/50 border border-gold/25 text-gold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                  </span>
+                  <span class="text-[11px] text-ivory/70 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full">Live Synced</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-bold text-white font-serif" id="stat-favourites">0</div>
+                <p class="text-xs text-ivory/65 mt-1">Favourite Movies</p>
+                <p class="text-[11px] text-gold/80 mt-3 pt-3 border-t border-white/10">Updates instantly with watchlist</p>
+              </div>
+
+              <!-- Stat 4: Total Amount Spent -->
+              <div class="glass-panel card-lift rounded-2xl p-6 relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="p-2.5 rounded-xl bg-burgundy/50 border border-gold/25 text-gold">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  </span>
+                  <span class="text-[11px] text-gold bg-gold/10 border border-gold/25 px-2.5 py-0.5 rounded-full">PKR Ledger</span>
+                </div>
+                <div class="text-3xl sm:text-4xl font-bold text-gold font-serif" id="stat-spent">PKR 0</div>
+                <p class="text-xs text-ivory/65 mt-1">Total Amount Spent</p>
+                <p id="stat-spent-sub" class="text-[11px] text-ivory/60 mt-3 pt-3 border-t border-white/10">Sum of completed &amp; active tickets</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- B. PROFILE INFORMATION & E. ACCOUNT SETTINGS -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 reveal-item">
+            <!-- B. Profile Information Card -->
+            <div class="lg:col-span-7 glass-panel rounded-3xl p-6 sm:p-8 border border-gold/20 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-5 border-b border-white/10">
+                  <div>
+                    <p class="text-xs uppercase tracking-[0.2em] text-gold">Personal Dossier</p>
+                    <h3 class="font-serif text-2xl font-bold text-white mt-1">Profile Information</h3>
+                  </div>
+                  <button type="button" onclick="openEditProfileModal()" class="px-4 py-2 rounded-full text-xs font-medium bg-burgundy/60 hover:bg-burgundy text-gold border border-gold/30 transition">
+                    Edit Details
+                  </button>
+                </div>
+
+                <dl class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div class="p-4 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <dt class="text-[11px] uppercase tracking-wider text-ivory/50">Full Name</dt>
+                    <dd id="info-full-name" class="text-base font-medium text-white mt-1">Zayd Al-Mansoor</dd>
+                  </div>
+                  <div class="p-4 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <dt class="text-[11px] uppercase tracking-wider text-ivory/50">Email Address</dt>
+                    <dd id="info-email" class="text-base font-medium text-white mt-1 break-all">zayd.almansoor@cinepass.pk</dd>
+                  </div>
+                  <div class="p-4 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <dt class="text-[11px] uppercase tracking-wider text-ivory/50">Phone Number</dt>
+                    <dd id="info-phone" class="text-base font-medium text-white mt-1">+92 300 8542190</dd>
+                  </div>
+                  <div class="p-4 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <dt class="text-[11px] uppercase tracking-wider text-ivory/50">Preferred City</dt>
+                    <dd id="info-city" class="text-base font-medium text-white mt-1">Islamabad</dd>
+                  </div>
+                  <div class="sm:col-span-2 p-4 rounded-2xl bg-gradient-to-r from-burgundy/40 to-obsidian/80 border border-gold/25 flex items-center justify-between">
+                    <div>
+                      <dt class="text-[11px] uppercase tracking-wider text-gold/80">Membership Tier</dt>
+                      <dd id="info-membership" class="text-base font-semibold text-white mt-1">Royal Gold</dd>
+                    </div>
+                    <span class="text-xs text-ivory/70 bg-obsidian/70 px-3 py-1.5 rounded-full border border-white/10">Auto-Persisted Locally</span>
+                  </div>
+                </dl>
+              </div>
+
+              <!-- Ledger Breakdown Mini-Summary -->
+              <div class="mt-6 pt-5 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs text-ivory/60">
+                <span>Recent Screening Ledger: <strong class="text-ivory">Dune: Part Two (IMAX)</strong>, <strong class="text-ivory">Oppenheimer (70mm)</strong> +4 more</span>
+                <span class="text-gold">Synced with localStorage</span>
+              </div>
+            </div>
+
+            <!-- E. Account Settings Card -->
+            <div class="lg:col-span-5 glass-panel rounded-3xl p-6 sm:p-8 border border-gold/20 flex flex-col justify-between">
+              <div>
+                <div class="pb-5 border-b border-white/10">
+                  <p class="text-xs uppercase tracking-[0.2em] text-gold">Preferences &amp; Security</p>
+                  <h3 class="font-serif text-2xl font-bold text-white mt-1">Account Settings</h3>
+                </div>
+
+                <div class="mt-6 space-y-4">
+                  <!-- Notification Toggle 1 -->
+                  <div class="flex items-center justify-between p-3.5 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <div>
+                      <p class="text-sm font-medium text-white">Premiere &amp; IMAX Alerts</p>
+                      <p class="text-xs text-ivory/50">Early seat access for blockbuster releases</p>
+                    </div>
+                    <button type="button" role="switch" id="toggle-premiere" aria-checked="true" onclick="toggleSetting('premiere')" class="w-12 h-6 rounded-full bg-gold p-0.5 transition-colors flex items-center justify-end">
+                      <span class="w-5 h-5 rounded-full bg-obsidian shadow transform transition-transform"></span>
+                    </button>
+                  </div>
+
+                  <!-- Notification Toggle 2 -->
+                  <div class="flex items-center justify-between p-3.5 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <div>
+                      <p class="text-sm font-medium text-white">Exclusive Promo Dispatches</p>
+                      <p class="text-xs text-ivory/50">Weekend &amp; lounge voucher notifications</p>
+                    </div>
+                    <button type="button" role="switch" id="toggle-promos" aria-checked="true" onclick="toggleSetting('promos')" class="w-12 h-6 rounded-full bg-gold p-0.5 transition-colors flex items-center justify-end">
+                      <span class="w-5 h-5 rounded-full bg-obsidian shadow transform transition-transform"></span>
+                    </button>
+                  </div>
+
+                  <!-- Theme Appearance Switcher -->
+                  <div class="flex items-center justify-between p-3.5 rounded-2xl bg-obsidian/60 border border-white/5">
+                    <div>
+                      <p class="text-sm font-medium text-white">Theater Ambience Mode</p>
+                      <p id="theme-label" class="text-xs text-gold">Obsidian Noir (Default)</p>
+                    </div>
+                    <button type="button" onclick="cycleAmbienceTheme()" class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-charcoal border border-gold/30 text-ivory hover:text-gold transition">
+                      Switch Tone
+                    </button>
+                  </div>
+
+                  <!-- Change Password Button -->
+                  <button type="button" onclick="openPasswordModal()" class="w-full flex items-center justify-between p-3.5 rounded-2xl bg-obsidian/60 hover:bg-charcoal border border-white/10 transition text-left">
+                    <div>
+                      <p class="text-sm font-medium text-white">Change Account Password</p>
+                      <p class="text-xs text-ivory/50">Last updated 42 days ago</p>
+                    </div>
+                    <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Logout Action -->
+              <div class="mt-6 pt-5 border-t border-white/10">
+                <button type="button" onclick="logoutUser()" class="w-full py-3 rounded-2xl bg-burgundy/40 hover:bg-burgundy text-ivory border border-burgundy hover:border-gold/40 text-sm font-medium flex items-center justify-center gap-2 transition">
+                  <svg class="w-4 h-4 text-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                  Sign Out of CinePass
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- D. FAVOURITE MOVIES -->
+          <div class="reveal-item">
+            <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+              <div>
+                <p class="text-xs uppercase tracking-[0.22em] text-gold font-medium">Curated Watchlist</p>
+                <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">Favourite Movies</h2>
+              </div>
+
+              <!-- Add Movie to Favourites Control -->
+              <div class="flex flex-wrap items-center gap-2.5">
+                <label for="add-movie-select" class="sr-only">Select a movie to add to favourites</label>
+                <select id="add-movie-select" class="px-4 py-2.5 rounded-full bg-charcoal border border-gold/30 text-xs text-ivory focus:outline-none focus:border-gold">
+                  <option value="">+ Add film to favourites...</option>
+                </select>
+                <button type="button" onclick="addSelectedFavourite()" class="px-5 py-2.5 rounded-full bg-gold text-obsidian font-semibold text-xs hover:bg-ivory transition">
+                  Add Film
+                </button>
+              </div>
+            </div>
+
+            <!-- Favourites Grid -->
+            <div id="favourites-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"></div>
+
+            <!-- Empty Favourites State -->
+            <div id="favourites-empty" class="hidden glass-panel rounded-3xl p-10 text-center border border-dashed border-gold/30">
+              <p class="font-serif text-2xl text-white mb-2">Your Curated Watchlist is Empty</p>
+              <p class="text-xs text-ivory/60 mb-5">Select a premiere title from the dropdown above to pin it to your VIP profile.</p>
+              <button type="button" onclick="restoreDefaultFavourites()" class="px-5 py-2.5 rounded-full bg-burgundy text-gold border border-gold/30 text-xs font-medium hover:bg-burgundy/80 transition">
+                Restore Recommended Titles
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PAGE 02: OFFERS & DISCOUNTS
+    ========================================================== -->
+    <section id="page-offers" class="page-view hidden">
+      <!-- A. HERO SECTION -->
+      <div class="relative overflow-hidden border-b border-gold/15">
+        <div class="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=1920&q=80" alt="Cinema red velvet seats and golden lighting" class="w-full h-full object-cover opacity-30" />
+          <div class="absolute inset-0 cinematic-hero-bg"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div class="lg:col-span-7 space-y-6">
+              <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-burgundy/70 border border-gold/40">
+                <span class="w-2 h-2 rounded-full bg-gold animate-ping"></span>
+                <span class="text-xs font-semibold uppercase tracking-[0.2em] text-gold">Demonstration Campaign • Season 2026</span>
+              </div>
+              <h1 class="font-serif text-4xl sm:text-6xl font-bold text-white leading-[1.08]">
+                Exclusive Experiences. <span class="gold-gradient-text">Extraordinary Savings.</span>
+              </h1>
+              <p class="text-base sm:text-lg text-ivory/75 max-w-xl leading-relaxed">
+                Unlock premium movie experiences with exclusive CinePass rewards and special offers.
+              </p>
+              <div class="flex flex-wrap items-center gap-4 pt-2">
+                <a href="#offers-catalog" class="shimmer-btn px-7 py-3.5 rounded-full bg-gradient-to-r from-gold to-[#b89242] text-obsidian font-semibold text-sm tracking-wide hover:shadow-gold transition">
+                  Explore Offers
+                </a>
+                <a href="#coupon-simulator" class="px-7 py-3.5 rounded-full bg-charcoal/90 hover:bg-burgundy/60 text-ivory border border-gold/30 text-sm font-medium transition">
+                  Test Promo Calculator
+                </a>
+              </div>
+            </div>
+
+            <!-- Animated Promotional Visual Card -->
+            <div class="lg:col-span-5">
+              <div class="animate-float glass-panel rounded-3xl p-7 border border-gold/35 shadow-burgundy relative overflow-hidden">
+                <div class="absolute -right-10 -top-10 w-40 h-40 rounded-full bg-gold/15 blur-2xl"></div>
+                <div class="flex items-center justify-between mb-6">
+                  <span class="text-xs uppercase tracking-[0.25em] text-gold font-semibold">CinePass Black Pass</span>
+                  <span class="px-2.5 py-1 rounded-md bg-obsidian/80 border border-gold/30 text-[10px] font-mono text-gold">DEMO PRIVILEGE</span>
+                </div>
+                <p class="font-serif text-3xl sm:text-4xl font-bold text-white mb-2">Up to 25% Off</p>
+                <p class="text-xs text-ivory/70 mb-6">Applicable across IMAX Laser, Platinum Recliners &amp; Gourmet Lounge Combos.</p>
+                <div class="p-4 rounded-2xl bg-obsidian/80 border border-dashed border-gold/45 flex items-center justify-between">
+                  <div>
+                    <span class="text-[10px] uppercase tracking-widest text-ivory/50 block">Featured Weekend Code</span>
+                    <span class="font-mono text-lg font-bold text-gold tracking-wider">WEEKEND20</span>
+                  </div>
+                  <button type="button" onclick="copyPromoCode('WEEKEND20')" class="px-4 py-2 rounded-xl bg-gold text-obsidian text-xs font-bold hover:bg-ivory transition">
+                    Copy Code
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN OFFERS BODY -->
+      <div id="offers-catalog" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
+
+        <!-- D. OFFER CATEGORIES FILTER BAR -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gold">Curated Privileges (Demonstration Offers)</p>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">Active Promotional Campaigns</h2>
+          </div>
+
+          <div role="tablist" aria-label="Offer Categories" class="flex flex-wrap gap-2">
+            <button type="button" data-offer-cat="All" onclick="filterOffers('All')" class="offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold transition">All Offers</button>
+            <button type="button" data-offer-cat="Student Deals" onclick="filterOffers('Student Deals')" class="offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold transition">Student Deals</button>
+            <button type="button" data-offer-cat="Weekend Deals" onclick="filterOffers('Weekend Deals')" class="offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold transition">Weekend Deals</button>
+            <button type="button" data-offer-cat="Family Packages" onclick="filterOffers('Family Packages')" class="offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold transition">Family Packages</button>
+            <button type="button" data-offer-cat="Exclusive Rewards" onclick="filterOffers('Exclusive Rewards')" class="offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold transition">Exclusive Rewards</button>
+          </div>
+        </div>
+
+        <!-- B. FEATURED OFFERS GRID -->
+        <div id="offers-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"></div>
+
+        <!-- C. INTERACTIVE COUPON VALIDATOR & FARE CALCULATOR -->
+        <div id="coupon-simulator" class="glass-panel rounded-3xl p-6 sm:p-10 border border-gold/30 shadow-burgundy">
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-6 space-y-4">
+              <span class="px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-burgundy text-gold border border-gold/30">Interactive Promo Engine</span>
+              <h3 class="font-serif text-3xl font-bold text-white">Validate &amp; Calculate Your Ticket Savings</h3>
+              <p class="text-sm text-ivory/70 leading-relaxed">
+                Select a sample ticket package and apply any CinePass promotional code (such as <code class="text-gold font-mono">CINE10</code>, <code class="text-gold font-mono">WEEKEND20</code>, <code class="text-gold font-mono">STUDENT15</code>, or test an expired code like <code class="text-rose-300 font-mono">SUMMER24</code>) to preview exact savings.
+              </p>
+
+              <!-- Sample Package Selector -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                <div>
+                  <label for="calc-experience" class="block text-xs text-ivory/60 mb-1.5">Experience Tier</label>
+                  <select id="calc-experience" onchange="recalculateCouponPreview()" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-ivory focus:outline-none focus:border-gold">
+                    <option value="1800">IMAX Laser 3D (PKR 1,800)</option>
+                    <option value="2500" selected>Platinum Recliner Lounge (PKR 2,500)</option>
+                    <option value="1200">Standard Digital Screen (PKR 1,200)</option>
+                  </select>
+                </div>
+                <div>
+                  <label for="calc-tickets" class="block text-xs text-ivory/60 mb-1.5">Number of Seats</label>
+                  <select id="calc-tickets" onchange="recalculateCouponPreview()" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-ivory focus:outline-none focus:border-gold">
+                    <option value="1">1 Ticket</option>
+                    <option value="2" selected>2 Tickets</option>
+                    <option value="3">3 Tickets</option>
+                    <option value="4">4 Tickets (Family)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Coupon Input Form -->
+              <form onsubmit="applyCouponForm(event)" class="pt-2">
+                <label for="coupon-input" class="block text-xs text-ivory/60 mb-1.5">Enter Promo Code</label>
+                <div class="flex flex-col sm:flex-row gap-3">
+                  <input id="coupon-input" type="text" placeholder="e.g. WEEKEND20" class="flex-1 px-4 py-3.5 rounded-xl bg-obsidian border border-gold/30 text-sm font-mono uppercase text-white placeholder:text-ivory/35 focus:outline-none focus:border-gold" />
+                  <button type="submit" class="shimmer-btn px-7 py-3.5 rounded-xl bg-gold text-obsidian font-semibold text-sm hover:bg-ivory transition">
+                    Apply Code
+                  </button>
+                </div>
+              </form>
+
+              <!-- Validation Feedback Banner -->
+              <div id="coupon-feedback" class="hidden p-3.5 rounded-xl text-xs font-medium"></div>
+            </div>
+
+            <!-- Live Calculation Receipt Card -->
+            <div class="lg:col-span-6">
+              <div class="rounded-2xl bg-obsidian/90 border border-gold/25 p-6 sm:p-8 space-y-4">
+                <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                  <span class="text-xs uppercase tracking-[0.2em] text-gold">Demonstration Fare Breakdown</span>
+                  <span id="receipt-badge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 text-ivory/60">No Promo Applied</span>
+                </div>
+
+                <div class="space-y-3 text-sm">
+                  <div class="flex justify-between text-ivory/75">
+                    <span>Base Ticket Subtotal</span>
+                    <span id="receipt-subtotal" class="font-mono text-white">PKR 5,000</span>
+                  </div>
+                  <div class="flex justify-between text-ivory/75">
+                    <span>Applied Offer (<span id="receipt-code-name" class="text-gold">None</span>)</span>
+                    <span id="receipt-discount" class="font-mono text-emerald-400">- PKR 0</span>
+                  </div>
+                  <div class="flex justify-between text-ivory/50 text-xs">
+                    <span>Royal Gold Convenience Fee</span>
+                    <span class="text-gold">Waived (PKR 0)</span>
+                  </div>
+                </div>
+
+                <div class="pt-4 border-t border-dashed border-gold/30 flex items-baseline justify-between">
+                  <div>
+                    <span class="text-xs uppercase tracking-wider text-ivory/60 block">Estimated Total</span>
+                    <span class="text-[11px] text-ivory/45">Demonstration calculation only</span>
+                  </div>
+                  <span id="receipt-total" class="font-serif text-3xl sm:text-4xl font-bold text-gold">PKR 5,000</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         PAGE 03: CINEMAS / LOCATIONS
+    ========================================================== -->
+    <section id="page-cinemas" class="page-view hidden">
+      <!-- A. CINEMA HERO SECTION -->
+      <div class="relative overflow-hidden border-b border-gold/15">
+        <div class="absolute inset-0">
+          <img src="https://images.unsplash.com/photo-1595769816263-9b910be24d5f?auto=format&fit=crop&w=1920&q=80" alt="Grand luxury movie theater interior" class="w-full h-full object-cover opacity-30" />
+          <div class="absolute inset-0 cinematic-hero-bg"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-22">
+          <div class="max-w-3xl space-y-5">
+            <span class="inline-block px-3.5 py-1 rounded-full text-xs font-semibold uppercase tracking-[0.2em] bg-burgundy/75 text-gold border border-gold/35">
+              Demonstration Cinema Directory • Pakistan
+            </span>
+            <h1 class="font-serif text-4xl sm:text-6xl font-bold text-white leading-[1.08]">
+              Discover Your <span class="gold-gradient-text">Perfect Cinema.</span>
+            </h1>
+            <p class="text-base sm:text-lg text-ivory/75 leading-relaxed">
+              Find extraordinary movie experiences at CinePass cinema locations.
+            </p>
+          </div>
+
+          <!-- C. SEARCH AND FILTER SYSTEM -->
+          <div class="mt-10 glass-panel rounded-3xl p-5 sm:p-6 border border-gold/25 shadow-burgundy">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+              <!-- Search by Cinema Name or City -->
+              <div class="md:col-span-5">
+                <label for="cinema-search-input" class="block text-[11px] uppercase tracking-wider text-ivory/60 mb-1.5">Search Cinema or City</label>
+                <div class="relative">
+                  <svg class="w-4 h-4 text-gold absolute left-4 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                  <input id="cinema-search-input" type="text" oninput="filterCinemas()" placeholder="Search Cinepax, Nueplex, Centaurus, DHA..." class="w-full pl-11 pr-4 py-3 rounded-xl bg-obsidian/90 border border-gold/25 text-sm text-white placeholder:text-ivory/40 focus:outline-none focus:border-gold" />
+                </div>
+              </div>
+
+              <!-- Filter by City / Location -->
+              <div class="md:col-span-3">
+                <label for="cinema-city-filter" class="block text-[11px] uppercase tracking-wider text-ivory/60 mb-1.5">Location / City</label>
+                <select id="cinema-city-filter" onchange="filterCinemas()" class="w-full px-4 py-3 rounded-xl bg-obsidian/90 border border-gold/25 text-sm text-ivory focus:outline-none focus:border-gold">
+                  <option value="All">All Cities</option>
+                  <option value="Islamabad">Islamabad</option>
+                  <option value="Rawalpindi">Rawalpindi</option>
+                  <option value="Karachi">Karachi</option>
+                  <option value="Lahore">Lahore</option>
+                </select>
+              </div>
+
+              <!-- Filter by Available Facilities -->
+              <div class="md:col-span-3">
+                <label for="cinema-facility-filter" class="block text-[11px] uppercase tracking-wider text-ivory/60 mb-1.5">Facility / Format</label>
+                <select id="cinema-facility-filter" onchange="filterCinemas()" class="w-full px-4 py-3 rounded-xl bg-obsidian/90 border border-gold/25 text-sm text-ivory focus:outline-none focus:border-gold">
+                  <option value="All">All Facilities</option>
+                  <option value="IMAX">IMAX</option>
+                  <option value="Dolby Atmos">Dolby Atmos</option>
+                  <option value="Platinum Lounge">Platinum Lounge</option>
+                  <option value="VIP Recliners">VIP Recliners</option>
+                  <option value="Valet Parking">Valet Parking</option>
+                </select>
+              </div>
+
+              <!-- Clear Filters Button -->
+              <div class="md:col-span-1">
+                <button type="button" onclick="clearCinemaFilters()" title="Clear all filters" class="w-full py-3 px-3 rounded-xl bg-burgundy/60 hover:bg-burgundy text-gold border border-gold/30 text-xs font-semibold transition">
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CINEMA DIRECTORY & GALLERY -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-16">
+        <!-- Results Header -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <p class="text-xs uppercase tracking-[0.2em] text-gold">Sample Venue Showcase</p>
+            <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">Featured Demonstration Locations</h2>
+          </div>
+          <p id="cinema-results-count" class="text-xs text-ivory/60">Showing 6 demonstration cinemas</p>
+        </div>
+
+        <!-- B. CINEMA LOCATION CARDS GRID -->
+        <div id="cinemas-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7"></div>
+
+        <!-- Empty Search State -->
+        <div id="cinemas-empty-state" class="hidden glass-panel rounded-3xl p-12 text-center border border-dashed border-gold/35">
+          <div class="w-14 h-14 mx-auto mb-4 rounded-2xl bg-burgundy/50 border border-gold/30 flex items-center justify-center text-gold">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+          </div>
+          <h3 class="font-serif text-2xl font-bold text-white mb-2">No Cinema Matches Your Criteria</h3>
+          <p class="text-sm text-ivory/65 max-w-md mx-auto mb-6">We couldn't find a demonstration venue matching your current city, keyword, or facility combination.</p>
+          <button type="button" onclick="clearCinemaFilters()" class="px-6 py-3 rounded-full bg-gold text-obsidian font-semibold text-xs hover:bg-ivory transition">
+            Clear All Filters
+          </button>
+        </div>
+
+        <!-- E. CINEMA GALLERY -->
+        <div class="pt-6 border-t border-white/10">
+          <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-8 gap-3">
+            <div>
+              <p class="text-xs uppercase tracking-[0.22em] text-gold">Architectural &amp; Acoustic Craft</p>
+              <h2 class="font-serif text-2xl sm:text-3xl font-bold text-white mt-1">The CinePass Sanctuary Gallery</h2>
+            </div>
+            <p class="text-xs text-ivory/55">Click any frame to inspect full-screen sanctuary photography</p>
+          </div>
+
+          <div id="cinema-gallery-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- GLOBAL FOOTER -->
+  <footer class="border-t border-gold/15 bg-obsidian pt-14 pb-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-10 border-b border-white/10">
+        <div class="md:col-span-2 space-y-3">
+          <div class="flex items-center gap-2.5">
+            <span class="font-serif text-2xl font-bold text-white">Cine<span class="text-gold">Pass</span></span>
+            <span class="text-[10px] uppercase tracking-[0.22em] px-2.5 py-0.5 rounded-full bg-burgundy/60 text-gold border border-gold/30">Member 4 Suite</span>
+          </div>
+          <p class="text-sm text-ivory/65 max-w-md leading-relaxed">
+            Your Movie. Your Seat. Your Experience. Crafted for discerning film lovers seeking flagship acoustics, private recliner lounges, and effortless digital hospitality.
+          </p>
+          <p class="text-[11px] text-ivory/40">
+            Note: Offers, cinema listings, and promotional codes shown in this module are demonstration datasets created for the CinePass platform.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-[0.2em] text-gold mb-4">Member 4 Pages</h4>
+          <ul class="space-y-2.5 text-sm text-ivory/70">
+            <li><button type="button" onclick="navigateTo('profile')" class="hover:text-gold transition">User Profile Dashboard</button></li>
+            <li><button type="button" onclick="navigateTo('offers')" class="hover:text-gold transition">Offers &amp; Discounts</button></li>
+            <li><button type="button" onclick="navigateTo('cinemas')" class="hover:text-gold transition">Cinemas &amp; Locations</button></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-semibold uppercase tracking-[0.2em] text-gold mb-4">Platform Modules</h4>
+          <ul class="space-y-2.5 text-sm text-ivory/70">
+            <li><button type="button" onclick="handleExternalNav('Home')" class="hover:text-gold transition">Home Showcase</button></li>
+            <li><button type="button" onclick="handleExternalNav('Movies')" class="hover:text-gold transition">Now Showing &amp; Movies</button></li>
+            <li><button type="button" onclick="handleExternalNav('My Tickets')" class="hover:text-gold transition">My Tickets &amp; Seat Map</button></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-ivory/45">
+        <p>&copy; 2026 CinePass Entertainment Group. All rights reserved.</p>
+        <p>Your Movie. Your Seat. Your Experience.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- =========================================================
+       MODAL 01: EDIT PROFILE MODAL
+  ========================================================== -->
+  <div id="edit-profile-modal" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 border border-gold/35 shadow-burgundy animate-[pageFadeIn_0.3s_ease]">
+      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+        <div>
+          <span class="text-[11px] uppercase tracking-[0.2em] text-gold">Member Identity</span>
+          <h3 id="edit-modal-title" class="font-serif text-2xl font-bold text-white">Edit Profile Information</h3>
+        </div>
+        <button type="button" onclick="closeModal('edit-profile-modal')" aria-label="Close modal" class="p-2 rounded-full bg-obsidian/70 text-ivory/70 hover:text-gold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form id="edit-profile-form" onsubmit="saveProfileChanges(event)" novalidate class="mt-5 space-y-4">
+        <div>
+          <label for="input-full-name" class="block text-xs text-ivory/70 mb-1">Full Name *</label>
+          <input id="input-full-name" type="text" required class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+          <p id="err-full-name" class="hidden text-[11px] text-rose-400 mt-1">Please enter at least 3 characters for your full name.</p>
+        </div>
+
+        <div>
+          <label for="input-email" class="block text-xs text-ivory/70 mb-1">Email Address *</label>
+          <input id="input-email" type="email" required class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+          <p id="err-email" class="hidden text-[11px] text-rose-400 mt-1">Please enter a valid email address.</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="input-phone" class="block text-xs text-ivory/70 mb-1">Phone Number *</label>
+            <input id="input-phone" type="tel" required class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+            <p id="err-phone" class="hidden text-[11px] text-rose-400 mt-1">Enter a valid phone number (min 10 digits).</p>
+          </div>
+
+          <div>
+            <label for="input-city" class="block text-xs text-ivory/70 mb-1">City *</label>
+            <select id="input-city" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold">
+              <option value="Islamabad">Islamabad</option>
+              <option value="Rawalpindi">Rawalpindi</option>
+              <option value="Karachi">Karachi</option>
+              <option value="Lahore">Lahore</option>
+              <option value="Faisalabad">Faisalabad</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="input-membership" class="block text-xs text-ivory/70 mb-1">Membership Tier</label>
+          <select id="input-membership" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold">
+            <option value="Royal Gold">Royal Gold</option>
+            <option value="Platinum Director">Platinum Director</option>
+            <option value="Silver Premiere">Silver Premiere</option>
+          </select>
+        </div>
+
+        <div class="pt-4 flex items-center justify-end gap-3 border-t border-white/10">
+          <button type="button" onclick="closeModal('edit-profile-modal')" class="px-5 py-2.5 rounded-full text-xs font-medium text-ivory/75 hover:text-white">Cancel</button>
+          <button type="submit" class="shimmer-btn px-6 py-2.5 rounded-full bg-gold text-obsidian font-semibold text-xs hover:bg-ivory transition">
+            Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 02: CHANGE PASSWORD MODAL (SIMULATED)
+  ========================================================== -->
+  <div id="password-modal" role="dialog" aria-modal="true" aria-labelledby="pwd-modal-title" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 sm:p-8 border border-gold/35 shadow-burgundy animate-[pageFadeIn_0.3s_ease]">
+      <div class="flex items-center justify-between pb-4 border-b border-white/10">
+        <div>
+          <span class="text-[11px] uppercase tracking-[0.2em] text-gold">Security Vault</span>
+          <h3 id="pwd-modal-title" class="font-serif text-2xl font-bold text-white">Update Password</h3>
+        </div>
+        <button type="button" onclick="closeModal('password-modal')" aria-label="Close modal" class="p-2 rounded-full bg-obsidian/70 text-ivory/70 hover:text-gold">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+      </div>
+
+      <form onsubmit="submitPasswordChange(event)" class="mt-5 space-y-4">
+        <div>
+          <label for="pwd-current" class="block text-xs text-ivory/70 mb-1">Current Password</label>
+          <input id="pwd-current" type="password" required minlength="6" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+        </div>
+        <div>
+          <label for="pwd-new" class="block text-xs text-ivory/70 mb-1">New Password (min 8 characters)</label>
+          <input id="pwd-new" type="password" required minlength="8" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+        </div>
+        <div>
+          <label for="pwd-confirm" class="block text-xs text-ivory/70 mb-1">Confirm New Password</label>
+          <input id="pwd-confirm" type="password" required minlength="8" placeholder="••••••••" class="w-full px-4 py-3 rounded-xl bg-obsidian border border-gold/25 text-sm text-white focus:outline-none focus:border-gold" />
+        </div>
+        <p id="pwd-error" class="hidden text-xs text-rose-400"></p>
+        <div class="pt-3 flex justify-end gap-3">
+          <button type="button" onclick="closeModal('password-modal')" class="px-4 py-2.5 rounded-full text-xs text-ivory/70">Cancel</button>
+          <button type="submit" class="px-6 py-2.5 rounded-full bg-gold text-obsidian font-semibold text-xs hover:bg-ivory transition">Update Credentials</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 03: CINEMA DETAILS MODAL
+  ========================================================== -->
+  <div id="cinema-details-modal" role="dialog" aria-modal="true" aria-labelledby="cinema-modal-title" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
+    <div class="glass-panel w-full max-w-3xl rounded-3xl overflow-hidden border border-gold/35 shadow-burgundy my-8 animate-[pageFadeIn_0.3s_ease]">
+      <div class="relative h-64 sm:h-72">
+        <img id="modal-cinema-img" src="" alt="Cinema Hall" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/40 to-transparent"></div>
+        <button type="button" onclick="closeModal('cinema-details-modal')" aria-label="Close cinema details" class="absolute top-4 right-4 p-2.5 rounded-full bg-obsidian/80 text-white hover:text-gold border border-gold/30">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+        </button>
+        <div class="absolute bottom-5 left-6 right-6">
+          <span id="modal-cinema-city-badge" class="px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-burgundy text-gold border border-gold/35">City</span>
+          <h3 id="cinema-modal-title" class="font-serif text-3xl sm:text-4xl font-bold text-white mt-2">Cinema Name</h3>
+          <p id="modal-cinema-address" class="text-xs sm:text-sm text-ivory/80 mt-1">Address</p>
+        </div>
+      </div>
+
+      <div class="p-6 sm:p-8 space-y-6">
+        <p id="modal-cinema-desc" class="text-sm text-ivory/80 leading-relaxed"></p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          <div class="p-3.5 rounded-2xl bg-obsidian/75 border border-white/10">
+            <span class="text-[10px] uppercase tracking-wider text-ivory/50 block">Available Screens</span>
+            <span id="modal-cinema-screens" class="text-base font-bold text-gold mt-1 block">0 Screens</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-obsidian/75 border border-white/10">
+            <span class="text-[10px] uppercase tracking-wider text-ivory/50 block">Seating Capacity</span>
+            <span id="modal-cinema-capacity" class="text-base font-bold text-white mt-1 block">0 Seats</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-obsidian/75 border border-white/10">
+            <span class="text-[10px] uppercase tracking-wider text-ivory/50 block">Parking</span>
+            <span id="modal-cinema-parking" class="text-xs font-medium text-ivory mt-1 block">Available</span>
+          </div>
+          <div class="p-3.5 rounded-2xl bg-obsidian/75 border border-white/10">
+            <span class="text-[10px] uppercase tracking-wider text-ivory/50 block">Dining &amp; Lounge</span>
+            <span id="modal-cinema-food" class="text-xs font-medium text-ivory mt-1 block">Gourmet Bar</span>
+          </div>
+        </div>
+
+        <div>
+          <span class="text-xs uppercase tracking-wider text-gold block mb-2.5">Auditorium Technologies &amp; Facilities</span>
+          <div id="modal-cinema-facilities" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <div class="p-4 rounded-2xl bg-burgundy/25 border border-gold/20 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="text-xs text-ivory/75">
+            <strong class="text-gold">Concierge Desk:</strong> <span id="modal-cinema-contact"></span>
+            <span class="block text-[11px] text-ivory/50 mt-0.5">Demonstration venue listing — seating capacities and schedules are sample data.</span>
+          </div>
+          <button type="button" id="modal-view-shows-btn" class="shimmer-btn px-6 py-3 rounded-full bg-gold text-obsidian font-semibold text-xs whitespace-nowrap hover:bg-ivory transition">
+            View Shows
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       MODAL 04: GALLERY LIGHTBOX MODAL
+  ========================================================== -->
+  <div id="gallery-modal" role="dialog" aria-modal="true" aria-label="Cinema Sanctuary Gallery Preview" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+    <div class="max-w-4xl w-full space-y-4 animate-[pageFadeIn_0.25s_ease]">
+      <div class="flex items-center justify-between">
+        <div>
+          <span id="lightbox-tag" class="text-xs uppercase tracking-[0.2em] text-gold">Auditorium</span>
+          <h4 id="lightbox-title" class="font-serif text-2xl font-bold text-white">Title</h4>
+        </div>
+        <button type="button" onclick="closeModal('gallery-modal')" class="px-4 py-2 rounded-full bg-charcoal text-ivory hover:text-gold border border-gold/30 text-xs">
+          Close Preview
+        </button>
+      </div>
+      <div class="rounded-3xl overflow-hidden border border-gold/30 max-h-[75vh]">
+        <img id="lightbox-img" src="" alt="Gallery Preview" class="w-full h-full object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       APPLICATION DATA & LOGIC
+  ========================================================== -->
+  <script>
+    // Configurable External Route Map for Group Members' Pages
+    const EXTERNAL_ROUTES = {
+      'Home': null,        // Set to URL string e.g. 'index-home.html' when integrated
+      'Movies': null,      // Set to URL string e.g. 'movies.html' when integrated
+      'My Tickets': null,  // Set to URL string e.g. 'tickets.html' when integrated
+      'Showtimes': null    // Set to URL string e.g. 'showtimes.html' when integrated
+    };
+
+    // Default User Profile & Application Ledger Data
+    const DEFAULT_USER_STATE = {
+      fullName: 'Zayd Al-Mansoor',
+      email: 'zayd.almansoor@cinepass.pk',
+      phone: '+92 300 8542190',
+      city: 'Islamabad',
+      membership: 'Royal Gold',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+      theme: 'obsidian',
+      settings: {
+        premiere: true,
+        promos: true
+      },
+      // Actual structured watch history & bookings used to compute dashboard stats
+      watchHistory: [
+        { id: 'w1', title: 'Dune: Part Two', ticketCost: 2500 },
+        { id: 'w2', title: 'Oppenheimer', ticketCost: 2200 },
+        { id: 'w3', title: 'Interstellar (IMAX Re-Release)', ticketCost: 2400 },
+        { id: 'w4', title: 'The Batman', ticketCost: 1800 },
+        { id: 'w5', title: 'Blade Runner 2049', ticketCost: 1900 },
+        { id: 'w6', title: 'Past Lives', ticketCost: 1600 }
+      ],
+      upcomingBookings: [
+        { id: 'b1', title: 'Gladiator II (Platinum Lounge)', seat: 'E-07, E-08', ticketCost: 5000 },
+        { id: 'b2', title: 'Nosferatu (Dolby Atmos)', seat: 'G-12', ticketCost: 2200 }
+      ],
+      favourites: [
+        {
+          id: 'mov-dune2',
+          title: 'Dune: Part Two',
+          genre: 'Sci-Fi • Epic',
+          rating: '8.8 / 10',
+          poster: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80'
+        },
+        {
+          id: 'mov-oppenheimer',
+          title: 'Oppenheimer',
+          genre: 'Biography • Drama',
+          rating: '8.6 / 10',
+          poster: 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?auto=format&fit=crop&w=600&q=80'
+        },
+        {
+          id: 'mov-interstellar',
+          title: 'Interstellar',
+          genre: 'Sci-Fi • Adventure',
+          rating: '8.7 / 10',
+          poster: 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?auto=format&fit=crop&w=600&q=80'
+        },
+        {
+          id: 'mov-arrival',
+          title: 'Arrival',
+          genre: 'Sci-Fi • Mystery',
+          rating: '8.0 / 10',
+          poster: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=600&q=80'
+        }
+      ]
+    };
+
+    // Extra Movies Available to Add to Favourites
+    const AVAILABLE_CATALOG_MOVIES = [
+      {
+        id: 'mov-blade2049',
+        title: 'Blade Runner 2049',
+        genre: 'Neo-Noir • Sci-Fi',
+        rating: '8.1 / 10',
+        poster: 'https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        id: 'mov-gladiator2',
+        title: 'Gladiator II',
+        genre: 'Action • Historical',
+        rating: '8.2 / 10',
+        poster: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        id: 'mov-inception',
+        title: 'Inception',
+        genre: 'Thriller • Sci-Fi',
+        rating: '8.8 / 10',
+        poster: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=600&q=80'
+      },
+      {
+        id: 'mov-whiplash',
+        title: 'Whiplash',
+        genre: 'Music • Drama',
+        rating: '8.5 / 10',
+        poster: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80'
+      }
+    ];
+
+    // Demonstration Offers Data (Page 02)
+    const OFFERS_DATA = [
+      {
+        id: 'off-weekend',
+        title: 'Weekend Special',
+        category: 'Weekend Deals',
+        discountLabel: '20% OFF',
+        discountPercent: 20,
+        code: 'WEEKEND20',
+        expiry: '2026-12-31',
+        expiryDisplay: 'Valid through Dec 31, 2026',
+        description: 'Enjoy 20% privilege savings on Friday through Sunday evening IMAX and Platinum recliner screenings.'
+      },
+      {
+        id: 'off-student',
+        title: 'Student Discount',
+        category: 'Student Deals',
+        discountLabel: '15% OFF',
+        discountPercent: 15,
+        code: 'STUDENT15',
+        expiry: '2026-12-31',
+        expiryDisplay: 'Valid through Dec 31, 2026',
+        description: 'Present a valid university ID at foyer check-in and unlock 15% off all weekday matinee and evening shows.'
+      },
+      {
+        id: 'off-family',
+        title: 'Family Movie Package',
+        category: 'Family Packages',
+        discountLabel: '25% OFF',
+        discountPercent: 25,
+        code: 'FAMILY25',
+        expiry: '2026-12-15',
+        expiryDisplay: 'Valid through Dec 15, 2026',
+        description: 'Curated for groups of 4 or more guests: save 25% on adjacent orchestra seating plus gourmet popcorn tubs.'
+      },
+      {
+        id: 'off-b2g1',
+        title: 'Buy 2 Get 1 Free',
+        category: 'Weekend Deals',
+        discountLabel: '33% VALUE',
+        discountPercent: 33,
+        code: 'TRIO33',
+        expiry: '2026-12-20',
+        expiryDisplay: 'Valid through Dec 20, 2026',
+        description: 'Reserve two luxury lounge tickets for any premiere screening and receive your third companion seat complimentary.'
+      },
+      {
+        id: 'off-combo',
+        title: 'Movie Night Combo',
+        category: 'Exclusive Rewards',
+        discountLabel: '10% OFF',
+        discountPercent: 10,
+        code: 'CINE10',
+        expiry: '2026-12-31',
+        expiryDisplay: 'Valid through Dec 31, 2026',
+        description: 'Instant 10% savings across all standard and digital 3D screenings paired with artisanal caramel & espresso combos.'
+      },
+      {
+        id: 'off-rewards',
+        title: 'Exclusive Member Rewards',
+        category: 'Exclusive Rewards',
+        discountLabel: '30% VIP',
+        discountPercent: 30,
+        code: 'ROYAL30',
+        expiry: '2026-12-31',
+        expiryDisplay: 'Valid through Dec 31, 2026',
+        description: 'Reserved exclusively for CinePass Royal Gold & Platinum members on director cut premieres and private screenings.'
+      },
+      {
+        id: 'off-expired-demo',
+        title: 'Archive Summer Premiere Pass',
+        category: 'Exclusive Rewards',
+        discountLabel: '18% OFF',
+        discountPercent: 18,
+        code: 'SUMMER24',
+        expiry: '2025-08-31',
+        expiryDisplay: 'Expired Aug 31, 2025',
+        description: 'Demonstration expired voucher included so you can verify CinePass automatic expiration validation.'
+      }
+    ];
+
+    // Demonstration Cinema Locations in Pakistan (Page 03)
+    const CINEMAS_DATA = [
+      {
+        id: 'cin-cinepax-centaurus',
+        name: 'Cinepax Cinema — The Centaurus',
+        city: 'Islamabad',
+        address: '4th Floor, The Centaurus Mall, Jinnah Avenue, F-8/4, Islamabad',
+        contact: '+92 (51) 111-246-372',
+        screens: '5 Auditoriums',
+        capacity: '920 Guests',
+        parking: 'Multi-Level Covered Mall Parking',
+        food: 'Gold Class Café & Artisanal Popcorn Bar',
+        facilities: ['Dolby Atmos', 'Platinum Lounge', '3D Projection', 'Valet Parking'],
+        image: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: Located in the heart of Islamabad, featuring plush velvet stadium seating, acoustic wall paneling, and private Gold Lounge service.'
+      },
+      {
+        id: 'cin-nueplex-dha',
+        name: 'Nueplex Cinemas — DHA Phase VIII',
+        city: 'Karachi',
+        address: 'The Place, Khayaban-e-Shaheen, DHA Phase VIII, Karachi',
+        contact: '+92 (21) 111-683-753',
+        screens: '8 Auditoriums',
+        capacity: '1,650 Guests',
+        parking: 'Dedicated Basement & Valet Parking',
+        food: 'Royal Lounge Dining & Espresso Counter',
+        facilities: ['IMAX', 'Dolby Atmos', 'VIP Recliners', 'Valet Parking'],
+        image: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: Flagship coastal multiplex offering wall-to-wall curved screens, dual laser projection, and fully motorized Italian leather recliners.'
+      },
+      {
+        id: 'cin-cue-gulberg',
+        name: 'Cue Cinemas — Gulberg III',
+        city: 'Lahore',
+        address: 'Main Boulevard, Gulberg III, Lahore',
+        contact: '+92 (42) 3577-8890',
+        screens: '6 Auditoriums',
+        capacity: '1,180 Guests',
+        parking: 'Complimentary Valet & Secure Plaza Lot',
+        food: 'Bistro Lounge & In-Seat Butler Service',
+        facilities: ['Dolby Atmos', 'Platinum Lounge', 'VIP Recliners', 'Valet Parking'],
+        image: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: Architectural luxury cinema in Lahore combining bespoke gold-trimmed auditoriums with precision 64-channel surround sound.'
+      },
+      {
+        id: 'cin-cinepax-jinnahpark',
+        name: 'Cinepax Cinema — Jinnah Park',
+        city: 'Rawalpindi',
+        address: 'Jinnah Park Complex, Airport Road, Rawalpindi',
+        contact: '+92 (51) 595-2901',
+        screens: '4 Auditoriums',
+        capacity: '780 Guests',
+        parking: 'Open-Air Parkland Parking',
+        food: 'Classic Concessions & Coffee Bar',
+        facilities: ['Dolby Atmos', '3D Projection', 'Family Boxes'],
+        image: 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: Beloved twin-cities cinema destination nestled beside Jinnah Park, renowned for crisp digital projection and spacious family rows.'
+      },
+      {
+        id: 'cin-arena-bahria',
+        name: 'The Arena — Bahria Town Phase 4',
+        city: 'Rawalpindi',
+        address: 'Civic Center, Bahria Town Phase 4, Rawalpindi',
+        contact: '+92 (51) 573-1902',
+        screens: '3 Auditoriums',
+        capacity: '640 Guests',
+        parking: 'Dedicated Civic Plaza Parking',
+        food: 'Gourmet Grill & Cinema Snacks',
+        facilities: ['Dolby Atmos', 'VIP Recliners', '3D Projection'],
+        image: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: Intimate boutique auditoriums engineered for blockbuster clarity, warm ambient lighting, and effortless weekend family outings.'
+      },
+      {
+        id: 'cin-universal-emporium',
+        name: 'Universal Cinemas — Emporium Mall',
+        city: 'Lahore',
+        address: '2nd Floor, Nishat Emporium Mall, Johar Town, Lahore',
+        contact: '+92 (42) 3259-2000',
+        screens: '9 Auditoriums',
+        capacity: '1,820 Guests',
+        parking: 'Underground Mall Parking',
+        food: 'Premiere Lounge & Dessert Bar',
+        facilities: ['IMAX', 'Platinum Lounge', 'VIP Recliners', 'Dolby Atmos'],
+        image: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&w=900&q=80',
+        description: 'Demonstration listing: High-capacity luxury entertainment complex boasting ultra-wide silver screens, private VIP balcony suites, and acoustic isolation.'
+      }
+    ];
+
+    // Cinema Sanctuary Gallery Frames
+    const GALLERY_ITEMS = [
+      {
+        title: 'Grand Royal Auditorium',
+        tag: 'Acoustic Architecture',
+        img: 'https://images.unsplash.com/photo-1517604931442-7e0c8ed2963c?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Platinum Recliner Suites',
+        tag: 'First-Class Comfort',
+        img: 'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: '4K Laser Projection Hall',
+        tag: 'Visual Precision',
+        img: 'https://images.unsplash.com/photo-1595769816263-9b910be24d5f?auto=format&fit=crop&w=900&q=80'
+      },
+      {
+        title: 'Premiere Foyer & Lounge',
+        tag: 'Hospitality',
+        img: 'https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?auto=format&fit=crop&w=900&q=80'
+      }
+    ];
+
+    // Global State
+    let appState = loadUserState();
+    let currentOfferCategory = 'All';
+    let appliedCoupon = null;
+
+    function loadUserState() {
+      try {
+        const saved = localStorage.getItem('cinepass_member4_state');
+        if (saved) {
+          return { ...DEFAULT_USER_STATE, ...JSON.parse(saved) };
+        }
+      } catch (e) {
+        console.warn('Unable to read localStorage, using default state.', e);
+      }
+      return JSON.parse(JSON.stringify(DEFAULT_USER_STATE));
+    }
+
+    function persistUserState() {
+      try {
+        localStorage.setItem('cinepass_member4_state', JSON.stringify(appState));
+      } catch (e) {
+        console.warn('Unable to write localStorage.', e);
+      }
+    }
+
+    // =========================================================
+    // NAVIGATION & PAGE SWITCHING
+    // =========================================================
+    function navigateTo(pageKey) {
+      const validPages = ['profile', 'offers', 'cinemas'];
+      const target = validPages.includes(pageKey) ? pageKey : 'profile';
+
+      validPages.forEach((key) => {
+        const section = document.getElementById(`page-${key}`);
+        if (section) {
+          if (key === target) {
+            section.classList.remove('hidden');
+            // Re-trigger animation cleanly
+            section.classList.remove('page-view');
+            void section.offsetWidth;
+            section.classList.add('page-view');
+          } else {
+            section.classList.add('hidden');
+          }
+        }
+      });
+
+      // Update Desktop Active Pills
+      document.querySelectorAll('.nav-pill').forEach((btn) => {
+        const isActive = btn.getAttribute('data-nav') === target;
+        btn.className = isActive
+          ? 'nav-pill px-4 py-2 rounded-full text-xs font-semibold bg-gradient-to-r from-burgundy to-[#6f1633] text-gold border border-gold/40 shadow-sm transition'
+          : 'nav-pill px-4 py-2 rounded-full text-xs font-medium text-ivory/75 hover:text-white transition';
+      });
+
+      // Update Mobile Active Pills
+      document.querySelectorAll('[data-nav-mobile]').forEach((btn) => {
+        const isActive = btn.getAttribute('data-nav-mobile') === target;
+        btn.className = isActive
+          ? 'w-full text-left px-4 py-3 rounded-xl text-sm font-semibold bg-burgundy/60 text-gold border border-gold/30 flex items-center justify-between'
+          : 'w-full text-left px-4 py-3 rounded-xl text-sm font-medium text-ivory/80 hover:bg-charcoal flex items-center justify-between';
+      });
+
+      window.location.hash = target;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      triggerScrollReveals();
+    }
+
+    function handleExternalNav(moduleName) {
+      const configuredUrl = EXTERNAL_ROUTES[moduleName];
+      if (configuredUrl) {
+        window.location.href = configuredUrl;
+      } else {
+        showToast(
+          `${moduleName} Module`,
+          `This route connects to another team member's page (${moduleName}). You are currently exploring Member 4's suite.`,
+          'info'
+        );
+      }
+    }
+
+    function toggleMobileMenu() {
+      const menu = document.getElementById('mobile-menu');
+      const btn = document.getElementById('mobile-menu-btn');
+      const iconOpen = document.getElementById('menu-icon-open');
+      const iconClose = document.getElementById('menu-icon-close');
+      const isHidden = menu.classList.contains('hidden');
+
+      menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(isHidden));
+      iconOpen.classList.toggle('hidden');
+      iconClose.classList.toggle('hidden');
+    }
+
+    // =========================================================
+    // TOAST NOTIFICATIONS
+    // =========================================================
+    function showToast(title, message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      const borderColor = type === 'error' ? 'border-rose-500/50' : type === 'info' ? 'border-gold/40' : 'border-emerald-400/50';
+      const badgeColor = type === 'error' ? 'text-rose-400' : 'text-gold';
+
+      toast.className = `pointer-events-auto glass-panel rounded-2xl p-4 border ${borderColor} shadow-2xl transform transition-all duration-300 translate-y-2 opacity-0`;
+      toast.innerHTML = `
+        <div class="flex items-start gap-3">
+          <div class="mt-0.5 ${badgeColor}">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div class="flex-1">
+            <p class="text-xs font-semibold text-white">${title}</p>
+            <p class="text-[11px] text-ivory/75 mt-0.5 leading-relaxed">${message}</p>
+          </div>
+        </div>
+      `;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3600);
+    }
+
+    // =========================================================
+    // PAGE 01: USER PROFILE RENDERING & ACTIONS
+    // =========================================================
+    function renderProfilePage() {
+      // Hero & Information Fields
+      document.getElementById('hero-full-name').textContent = appState.fullName;
+      document.getElementById('hero-email').querySelector('span').textContent = appState.email;
+      document.getElementById('hero-membership-pill').textContent = `${appState.membership} Member`;
+      document.getElementById('nav-tier-badge').textContent = appState.membership;
+
+      document.getElementById('info-full-name').textContent = appState.fullName;
+      document.getElementById('info-email').textContent = appState.email;
+      document.getElementById('info-phone').textContent = appState.phone;
+      document.getElementById('info-city').textContent = appState.city;
+      document.getElementById('info-membership').textContent = appState.membership;
+
+      // Apply Theme
+      if (appState.theme === 'velvet') {
+        document.body.classList.add('theme-velvet');
+        document.getElementById('theme-label').textContent = 'Royal Burgundy Velvet';
+      } else {
+        document.body.classList.remove('theme-velvet');
+        document.getElementById('theme-label').textContent = 'Obsidian Noir (Default)';
+      }
+
+      // Sync Settings Switches
+      updateSwitchUI('toggle-premiere', appState.settings.premiere);
+      updateSwitchUI('toggle-promos', appState.settings.promos);
+
+      // Compute Dashboard Statistics directly from actual data arrays
+      const watchedCount = appState.watchHistory.length;
+      const upcomingCount = appState.upcomingBookings.length;
+      const favCount = appState.favourites.length;
+      const totalSpent =
+        appState.watchHistory.reduce((acc, item) => acc + item.ticketCost, 0) +
+        appState.upcomingBookings.reduce((acc, item) => acc + item.ticketCost, 0);
+
+      animateCounter('stat-watched', watchedCount, '');
+      animateCounter('stat-upcoming', upcomingCount, '');
+      animateCounter('stat-favourites', favCount, '');
+      animateCounter('stat-spent', totalSpent, 'PKR ');
+
+      document.getElementById('stat-watched-sub').textContent =
+        watchedCount > 0 ? `Latest: ${appState.watchHistory[0].title}` : 'No screenings recorded yet';
+      document.getElementById('stat-upcoming-sub').textContent =
+        upcomingCount > 0 ? `Next: ${appState.upcomingBookings[0].title}` : 'No active reservations';
+
+      renderFavouritesGrid();
+      populateAddMovieDropdown();
+    }
+
+    function animateCounter(elementId, targetValue, prefix = '') {
+      const el = document.getElementById(elementId);
+      if (!el) return;
+      const duration = 650;
+      const startTime = performance.now();
+
+      function tick(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        const current = Math.round(targetValue * eased);
+        el.textContent = `${prefix}${current.toLocaleString()}`;
+        if (progress < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+    }
+
+    function renderFavouritesGrid() {
+      const grid = document.getElementById('favourites-grid');
+      const emptyBox = document.getElementById('favourites-empty');
+
+      if (appState.favourites.length === 0) {
+        grid.innerHTML = '';
+        emptyBox.classList.remove('hidden');
+        return;
+      }
+
+      emptyBox.classList.add('hidden');
+      grid.innerHTML = appState.favourites
+        .map(
+          (movie) => `
+          <article class="glass-panel card-lift rounded-2xl overflow-hidden flex flex-col group">
+            <div class="relative aspect-[3/4] overflow-hidden bg-obsidian">
+              <img src="${movie.poster}" alt="${movie.title} poster" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+              <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-transparent to-black/30"></div>
+              <span class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-obsidian/85 text-gold border border-gold/30">
+                ★ ${movie.rating}
+              </span>
+            </div>
+            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
+              <div>
+                <p class="text-[11px] uppercase tracking-wider text-gold/80">${movie.genre}</p>
+                <h3 class="font-serif text-xl font-bold text-white mt-0.5">${movie.title}</h3>
+              </div>
+              <button type="button" onclick="removeFavourite('${movie.id}')" class="w-full py-2.5 px-4 rounded-xl bg-burgundy/40 hover:bg-burgundy text-ivory hover:text-white border border-burgundy hover:border-gold/40 text-xs font-medium flex items-center justify-center gap-2 transition">
+                <svg class="w-3.5 h-3.5 text-gold" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                Remove from Favourites
+              </button>
+            </div>
+          </article>
+        `
+        )
+        .join('');
+    }
+
+    function populateAddMovieDropdown() {
+      const select = document.getElementById('add-movie-select');
+      const existingIds = new Set(appState.favourites.map((m) => m.id));
+      const allPool = [...DEFAULT_USER_STATE.favourites, ...AVAILABLE_CATALOG_MOVIES];
+      const available = allPool.filter((m) => !existingIds.has(m.id));
+
+      select.innerHTML =
+        `<option value="">+ Add film to favourites (${available.length} available)...</option>` +
+        available.map((m) => `<option value="${m.id}">${m.title} (${m.genre})</option>`).join('');
+    }
+
+    function addSelectedFavourite() {
+      const select = document.getElementById('add-movie-select');
+      const selectedId = select.value;
+      if (!selectedId) {
+        showToast('Select a Film', 'Choose a title from the watchlist selector first.', 'info');
+        return;
+      }
+      const allPool = [...DEFAULT_USER_STATE.favourites, ...AVAILABLE_CATALOG_MOVIES];
+      const found = allPool.find((m) => m.id === selectedId);
+      if (found) {
+        appState.favourites.unshift(found);
+        persistUserState();
+        renderProfilePage();
+        showToast('Added to Favourites', `${found.title} has been pinned to your VIP watchlist.`);
+      }
+    }
+
+    function removeFavourite(movieId) {
+      const target = appState.favourites.find((m) => m.id === movieId);
+      appState.favourites = appState.favourites.filter((m) => m.id !== movieId);
+      persistUserState();
+      renderProfilePage();
+      if (target) {
+        showToast('Removed from Favourites', `${target.title} was removed from your watchlist.`, 'info');
+      }
+    }
+
+    function restoreDefaultFavourites() {
+      appState.favourites = JSON.parse(JSON.stringify(DEFAULT_USER_STATE.favourites));
+      persistUserState();
+      renderProfilePage();
+      showToast('Watchlist Restored', 'Your default curated CinePass titles have been restored.');
+    }
+
+    // Edit Profile Modal Controls
+    function openEditProfileModal() {
+      document.getElementById('input-full-name').value = appState.fullName;
+      document.getElementById('input-email').value = appState.email;
+      document.getElementById('input-phone').value = appState.phone;
+      document.getElementById('input-city').value = appState.city;
+      document.getElementById('input-membership').value = appState.membership;
+
+      ['err-full-name', 'err-email', 'err-phone'].forEach((id) => document.getElementById(id).classList.add('hidden'));
+      openModal('edit-profile-modal');
+    }
+
+    function saveProfileChanges(event) {
+      event.preventDefault();
+      const nameVal = document.getElementById('input-full-name').value.trim();
+      const emailVal = document.getElementById('input-email').value.trim();
+      const phoneVal = document.getElementById('input-phone').value.trim();
+      const cityVal = document.getElementById('input-city').value;
+      const tierVal = document.getElementById('input-membership').value;
+
+      let isValid = true;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const digitsOnly = phoneVal.replace(/\D/g, '');
+
+      if (nameVal.length < 3) {
+        document.getElementById('err-full-name').classList.remove('hidden');
+        isValid = false;
+      } else {
+        document.getElementById('err-full-name').classList.add('hidden');
+      }
+
+      if (!emailRegex.test(emailVal)) {
+        document.getElementById('err-email').classList.remove('hidden');
+        isValid = false;
+      } else {
+        document.getElementById('err-email').classList.add('hidden');
+      }
+
+      if (digitsOnly.length < 10) {
+        document.getElementById('err-phone').classList.remove('hidden');
+        isValid = false;
+      } else {
+        document.getElementById('err-phone').classList.add('hidden');
+      }
+
+      if (!isValid) return;
+
+      appState.fullName = nameVal;
+      appState.email = emailVal;
+      appState.phone = phoneVal;
+      appState.city = cityVal;
+      appState.membership = tierVal;
+
+      persistUserState();
+      renderProfilePage();
+      closeModal('edit-profile-modal');
+      showToast('Profile Updated', 'Your personal details have been saved and persisted locally.');
+    }
+
+    // Account Settings Actions
+    function toggleSetting(key) {
+      appState.settings[key] = !appState.settings[key];
+      persistUserState();
+      updateSwitchUI(`toggle-${key}`, appState.settings[key]);
+      showToast(
+        'Preference Saved',
+        `${key === 'premiere' ? 'Premiere alerts' : 'Promotional dispatches'} turned ${appState.settings[key] ? 'ON' : 'OFF'}.`
+      );
+    }
+
+    function updateSwitchUI(id, isOn) {
+      const btn = document.getElementById(id);
+      if (!btn) return;
+      btn.setAttribute('aria-checked', String(isOn));
+      if (isOn) {
+        btn.classList.remove('bg-charcoal', 'justify-start');
+        btn.classList.add('bg-gold', 'justify-end');
+      } else {
+        btn.classList.remove('bg-gold', 'justify-end');
+        btn.classList.add('bg-charcoal', 'justify-start');
+      }
+    }
+
+    function cycleAmbienceTheme() {
+      appState.theme = appState.theme === 'obsidian' ? 'velvet' : 'obsidian';
+      persistUserState();
+      renderProfilePage();
+      showToast('Ambience Updated', `Switched theater tone to ${appState.theme === 'velvet' ? 'Royal Burgundy Velvet' : 'Obsidian Noir'}.`);
+    }
+
+    function openPasswordModal() {
+      document.getElementById('pwd-current').value = '';
+      document.getElementById('pwd-new').value = '';
+      document.getElementById('pwd-confirm').value = '';
+      document.getElementById('pwd-error').classList.add('hidden');
+      openModal('password-modal');
+    }
+
+    function submitPasswordChange(event) {
+      event.preventDefault();
+      const newPwd = document.getElementById('pwd-new').value;
+      const confirmPwd = document.getElementById('pwd-confirm').value;
+      const errEl = document.getElementById('pwd-error');
+
+      if (newPwd !== confirmPwd) {
+        errEl.textContent = 'New password and confirmation do not match.';
+        errEl.classList.remove('hidden');
+        return;
+      }
+      errEl.classList.add('hidden');
+      closeModal('password-modal');
+      showToast('Password Updated', 'Your CinePass security credentials have been updated.');
+    }
+
+    function logoutUser() {
+      document.getElementById('profile-dashboard-content').classList.add('hidden');
+      document.getElementById('logged-out-state').classList.remove('hidden');
+      showToast('Signed Out', 'You have securely logged out of your CinePass session.', 'info');
+    }
+
+    function signBackIn() {
+      document.getElementById('logged-out-state').classList.add('hidden');
+      document.getElementById('profile-dashboard-content').classList.remove('hidden');
+      renderProfilePage();
+      showToast('Welcome Back', `Signed in as ${appState.fullName}.`);
+    }
+
+    // =========================================================
+    // PAGE 02: OFFERS & DISCOUNTS RENDERING & COUPON ENGINE
+    // =========================================================
+    function filterOffers(category) {
+      currentOfferCategory = category;
+
+      document.querySelectorAll('.offer-cat-btn').forEach((btn) => {
+        const isActive = btn.getAttribute('data-offer-cat') === category;
+        btn.className = isActive
+          ? 'offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold bg-gold text-obsidian shadow-gold transition'
+          : 'offer-cat-btn px-4 py-2 rounded-full text-xs font-semibold bg-charcoal text-ivory/75 border border-white/10 hover:border-gold/40 hover:text-white transition';
+      });
+
+      const grid = document.getElementById('offers-grid');
+      const filtered = category === 'All' ? OFFERS_DATA : OFFERS_DATA.filter((o) => o.category === category);
+      const todayStr = new Date().toISOString().split('T')[0];
+
+      grid.innerHTML = filtered
+        .map((offer) => {
+          const isExpired = offer.expiry < todayStr;
+          return `
+            <article class="glass-panel card-lift rounded-3xl p-6 sm:p-7 flex flex-col justify-between relative overflow-hidden ${isExpired ? 'opacity-75' : ''}">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-4">
+                  <span class="px-3 py-1 rounded-full text-[11px] font-semibold uppercase tracking-wider ${
+                    isExpired
+                      ? 'bg-rose-950/80 text-rose-300 border border-rose-500/30'
+                      : 'bg-burgundy/75 text-gold border border-gold/30'
+                  }">
+                    ${isExpired ? 'Expired Demo' : offer.category}
+                  </span>
+                  <span class="font-serif text-2xl font-bold ${isExpired ? 'text-ivory/40' : 'text-gold'}">${offer.discountLabel}</span>
+                </div>
+
+                <h3 class="font-serif text-2xl font-bold text-white mb-2">${offer.title}</h3>
+                <p class="text-xs sm:text-sm text-ivory/70 leading-relaxed mb-5">${offer.description}</p>
+              </div>
+
+              <div class="space-y-4 pt-4 border-t border-white/10">
+                <div class="flex items-center justify-between text-[11px] text-ivory/55">
+                  <span>Demo Offer</span>
+                  <span>${offer.expiryDisplay}</span>
+                </div>
+
+                <div class="p-3 rounded-2xl bg-obsidian/85 border border-dashed ${isExpired ? 'border-rose-500/30' : 'border-gold/40'} flex items-center justify-between gap-2">
+                  <code class="font-mono text-sm font-bold tracking-wider ${isExpired ? 'text-rose-300 line-through' : 'text-gold'}">${offer.code}</code>
+                  <div class="flex items-center gap-1.5">
+                    <button type="button" onclick="copyPromoCode('${offer.code}')" class="px-3 py-1.5 rounded-lg bg-charcoal hover:bg-white/10 text-ivory text-[11px] font-medium border border-white/10 transition">
+                      Copy
+                    </button>
+                    <button type="button" onclick="quickApplyOffer('${offer.code}')" class="px-3 py-1.5 rounded-lg ${
+                      isExpired ? 'bg-rose-950 text-rose-200 border border-rose-500/30' : 'bg-gold text-obsidian font-semibold hover:bg-ivory'
+                    } text-[11px] transition">
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </article>
+          `;
+        })
+        .join('');
+    }
+
+    function copyPromoCode(code) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      }
+      showToast('Promo Code Copied', `Code "${code}" copied to your clipboard.`);
+    }
+
+    function quickApplyOffer(code) {
+      const input = document.getElementById('coupon-input');
+      input.value = code;
+      validateAndApplyCode(code);
+      document.getElementById('coupon-simulator').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function applyCouponForm(event) {
+      event.preventDefault();
+      const raw = document.getElementById('coupon-input').value.trim().toUpperCase();
+      validateAndApplyCode(raw);
+    }
+
+    function validateAndApplyCode(code) {
+      const feedbackEl = document.getElementById('coupon-feedback');
+      feedbackEl.classList.remove('hidden', 'bg-rose-950/70', 'text-rose-200', 'border-rose-500/40', 'bg-emerald-950/70', 'text-emerald-200', 'border-emerald-500/40');
+
+      if (!code) {
+        appliedCoupon = null;
+        feedbackEl.classList.add('bg-rose-950/70', 'text-rose-200', 'border', 'border-rose-500/40');
+        feedbackEl.textContent = 'Please enter a CinePass promotional code before applying.';
+        recalculateCouponPreview();
+        return;
+      }
+
+      const matched = OFFERS_DATA.find((o) => o.code.toUpperCase() === code);
+      if (!matched) {
+        appliedCoupon = null;
+        feedbackEl.classList.add('bg-rose-950/70', 'text-rose-200', 'border', 'border-rose-500/40');
+        feedbackEl.textContent = `Invalid promo code "${code}". Try CINE10, WEEKEND20, STUDENT15, or FAMILY25.`;
+        showToast('Invalid Coupon', `Code "${code}" is not recognized.`, 'error');
+        recalculateCouponPreview();
+        return;
+      }
+
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (matched.expiry < todayStr) {
+        appliedCoupon = null;
+        feedbackEl.classList.add('bg-rose-950/70', 'text-rose-200', 'border', 'border-rose-500/40');
+        feedbackEl.textContent = `Promo code "${matched.code}" expired on ${matched.expiry} and cannot be applied.`;
+        showToast('Expired Coupon', `Code "${matched.code}" is expired.`, 'error');
+        recalculateCouponPreview();
+        return;
+      }
+
+      appliedCoupon = matched;
+      feedbackEl.classList.add('bg-emerald-950/70', 'text-emerald-200', 'border', 'border-emerald-500/40');
+      feedbackEl.textContent = `Success! "${matched.code}" (${matched.title} — ${matched.discountPercent}% off) applied to your estimate.`;
+      showToast('Discount Applied', `${matched.discountPercent}% off unlocked with ${matched.code}.`);
+      recalculateCouponPreview();
+    }
+
+    function recalculateCouponPreview() {
+      const unitPrice = Number(document.getElementById('calc-experience').value || 2500);
+      const qty = Number(document.getElementById('calc-tickets').value || 2);
+      const subtotal = unitPrice * qty;
+
+      let discountAmount = 0;
+      if (appliedCoupon) {
+        discountAmount = Math.round((subtotal * appliedCoupon.discountPercent) / 100);
+        document.getElementById('receipt-badge').textContent = `${appliedCoupon.code} Active`;
+        document.getElementById('receipt-badge').className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-gold/20 text-gold border border-gold/35';
+        document.getElementById('receipt-code-name').textContent = `${appliedCoupon.code} (${appliedCoupon.discountPercent}%)`;
+      } else {
+        document.getElementById('receipt-badge').textContent = 'No Promo Applied';
+        document.getElementById('receipt-badge').className = 'text-[11px] px-2.5 py-0.5 rounded-full bg-white/5 text-ivory/60';
+        document.getElementById('receipt-code-name').textContent = 'None';
+      }
+
+      const finalTotal = Math.max(0, subtotal - discountAmount);
+      document.getElementById('receipt-subtotal').textContent = `PKR ${subtotal.toLocaleString()}`;
+      document.getElementById('receipt-discount').textContent = `- PKR ${discountAmount.toLocaleString()}`;
+      document.getElementById('receipt-total').textContent = `PKR ${finalTotal.toLocaleString()}`;
+    }
+
+    // =========================================================
+    // PAGE 03: CINEMAS / LOCATIONS RENDERING & FILTERING
+    // =========================================================
+    function filterCinemas() {
+      const query = document.getElementById('cinema-search-input').value.trim().toLowerCase();
+      const city = document.getElementById('cinema-city-filter').value;
+      const facility = document.getElementById('cinema-facility-filter').value;
+
+      const matches = CINEMAS_DATA.filter((cinema) => {
+        const matchesQuery =
+          !query ||
+          cinema.name.toLowerCase().includes(query) ||
+          cinema.city.toLowerCase().includes(query) ||
+          cinema.address.toLowerCase().includes(query);
+        const matchesCity = city === 'All' || cinema.city === city;
+        const matchesFacility = facility === 'All' || cinema.facilities.includes(facility);
+        return matchesQuery && matchesCity && matchesFacility;
+      });
+
+      const grid = document.getElementById('cinemas-grid');
+      const emptyState = document.getElementById('cinemas-empty-state');
+      const countLabel = document.getElementById('cinema-results-count');
+
+      countLabel.textContent = `Showing ${matches.length} demonstration cinema${matches.length === 1 ? '' : 's'}`;
+
+      if (matches.length === 0) {
+        grid.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      grid.innerHTML = matches
+        .map(
+          (cinema) => `
+          <article class="glass-panel card-lift rounded-3xl overflow-hidden flex flex-col justify-between group">
+            <div>
+              <div class="relative h-52 overflow-hidden bg-obsidian">
+                <img src="${cinema.image}" alt="${cinema.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/20 to-transparent"></div>
+                <span class="absolute top-3.5 left-3.5 px-3 py-1 rounded-full text-[11px] font-semibold bg-obsidian/85 text-gold border border-gold/35">
+                  ${cinema.city}
+                </span>
+                <span class="absolute top-3.5 right-3.5 px-2.5 py-1 rounded-md text-[10px] uppercase tracking-wider bg-burgundy/85 text-ivory border border-white/10">
+                  Demo Listing
+                </span>
+              </div>
+
+              <div class="p-6 space-y-3">
+                <h3 class="font-serif text-2xl font-bold text-white leading-snug">${cinema.name}</h3>
+                <p class="text-xs text-ivory/65 flex items-start gap-1.5">
+                  <svg class="w-4 h-4 text-gold shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  <span>${cinema.address}</span>
+                </p>
+                <p class="text-xs text-ivory/55">Tel: <span class="text-ivory/80">${cinema.contact}</span></p>
+                <p class="text-xs text-ivory/70 leading-relaxed pt-1">${cinema.description}</p>
+
+                <div class="flex flex-wrap gap-1.5 pt-2">
+                  ${cinema.facilities
+                    .map(
+                      (fac) =>
+                        `<span class="px-2.5 py-1 rounded-full text-[10px] font-medium bg-obsidian/80 text-gold/90 border border-gold/20">${fac}</span>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+            </div>
+
+            <div class="px-6 pb-6 pt-3 flex items-center gap-3">
+              <button type="button" onclick="openCinemaDetails('${cinema.id}')" class="flex-1 py-2.5 px-4 rounded-xl bg-charcoal hover:bg-burgundy/70 text-ivory border border-gold/30 text-xs font-semibold transition">
+                View Details
+              </button>
+              <button type="button" onclick="handleViewShows('${cinema.name}')" class="shimmer-btn flex-1 py-2.5 px-4 rounded-xl bg-gold text-obsidian font-semibold text-xs hover:bg-ivory transition">
+                View Shows
+              </button>
+            </div>
+          </article>
+        `
+        )
+        .join('');
+    }
+
+    function clearCinemaFilters() {
+      document.getElementById('cinema-search-input').value = '';
+      document.getElementById('cinema-city-filter').value = 'All';
+      document.getElementById('cinema-facility-filter').value = 'All';
+      filterCinemas();
+    }
+
+    function openCinemaDetails(cinemaId) {
+      const cinema = CINEMAS_DATA.find((c) => c.id === cinemaId);
+      if (!cinema) return;
+
+      document.getElementById('modal-cinema-img').src = cinema.image;
+      document.getElementById('modal-cinema-city-badge').textContent = `${cinema.city} • Demonstration Listing`;
+      document.getElementById('cinema-modal-title').textContent = cinema.name;
+      document.getElementById('modal-cinema-address').textContent = cinema.address;
+      document.getElementById('modal-cinema-desc').textContent = cinema.description;
+      document.getElementById('modal-cinema-screens').textContent = cinema.screens;
+      document.getElementById('modal-cinema-capacity').textContent = cinema.capacity;
+      document.getElementById('modal-cinema-parking').textContent = cinema.parking;
+      document.getElementById('modal-cinema-food').textContent = cinema.food;
+      document.getElementById('modal-cinema-contact').textContent = cinema.contact;
+
+      document.getElementById('modal-cinema-facilities').innerHTML = cinema.facilities
+        .map(
+          (f) =>
+            `<span class="px-3.5 py-1.5 rounded-full text-xs font-medium bg-burgundy/50 text-gold border border-gold/30">${f}</span>`
+        )
+        .join('');
+
+      document.getElementById('modal-view-shows-btn').onclick = () => {
+        closeModal('cinema-details-modal');
+        handleViewShows(cinema.name);
+      };
+
+      openModal('cinema-details-modal');
+    }
+
+    function handleViewShows(cinemaName) {
+      if (EXTERNAL_ROUTES['Showtimes']) {
+        window.location.href = `${EXTERNAL_ROUTES['Showtimes']}?cinema=${encodeURIComponent(cinemaName)}`;
+      } else {
+        showToast(
+          'Showtimes Route Ready',
+          `Selected "${cinemaName}". Connect EXTERNAL_ROUTES.Showtimes to open the team's showtimes schedule page.`,
+          'info'
+        );
+      }
+    }
+
+    function renderCinemaGallery() {
+      const container = document.getElementById('cinema-gallery-grid');
+      container.innerHTML = GALLERY_ITEMS.map(
+        (item, idx) => `
+        <button type="button" onclick="openLightbox(${idx})" class="group relative h-64 rounded-2xl overflow-hidden border border-gold/20 text-left focus:outline-none focus:border-gold">
+          <img src="${item.img}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+          <div class="absolute inset-0 bg-gradient-to-t from-obsidian via-obsidian/25 to-transparent"></div>
+          <div class="absolute bottom-4 left-4 right-4">
+            <span class="text-[10px] uppercase tracking-[0.2em] text-gold block">${item.tag}</span>
+            <p class="font-serif text-lg font-bold text-white mt-0.5">${item.title}</p>
+          </div>
+        </button>
+      `
+      ).join('');
+    }
+
+    function openLightbox(index) {
+      const item = GALLERY_ITEMS[index];
+      if (!item) return;
+      document.getElementById('lightbox-tag').textContent = item.tag;
+      document.getElementById('lightbox-title').textContent = item.title;
+      document.getElementById('lightbox-img').src = item.img;
+      openModal('gallery-modal');
+    }
+
+    // =========================================================
+    // SHARED MODAL & SCROLL REVEAL UTILITIES
+    // =========================================================
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('hidden');
+      el.classList.add('flex');
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.add('hidden');
+      el.classList.remove('flex');
+    }
+
+    // Close modals on Escape key or backdrop click
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        ['edit-profile-modal', 'password-modal', 'cinema-details-modal', 'gallery-modal'].forEach(closeModal);
+      }
+    });
+
+    ['edit-profile-modal', 'password-modal', 'cinema-details-modal', 'gallery-modal'].forEach((modalId) => {
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) closeModal(modalId);
+        });
+      }
+    });
+
+    function triggerScrollReveals() {
+      const items = document.querySelectorAll('.reveal-item');
+      if (!('IntersectionObserver' in window)) {
+        items.forEach((el) => el.classList.add('is-visible'));
+        return;
+      }
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.1 }
+      );
+      items.forEach((el) => observer.observe(el));
+    }
+
+    // =========================================================
+    // INITIALIZATION
+    // =========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      renderProfilePage();
+      filterOffers('All');
+      recalculateCouponPreview();
+      filterCinemas();
+      renderCinemaGallery();
+
+      const initialHash = window.location.hash.replace('#', '');
+      if (['profile', 'offers', 'cinemas'].includes(initialHash)) {
+        navigateTo(initialHash);
+      } else {
+        navigateTo('profile');
+      }
+    });
+  </script>
+</body>
+</html>
